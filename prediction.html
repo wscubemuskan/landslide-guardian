@@ -1,95 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Risk Prediction | Landslide Guardian</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
-    body { background: #f4f7f6; color: #222; padding-bottom: 40px; }
-    header { background: #12372a; color: white; padding: 20px 7.5%; text-align: center; }
-    
-    .container { max-width: 600px; margin: 30px auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    h2 { margin-bottom: 20px; color: #12372a; text-align: center; }
-    
-    .form-group { margin-bottom: 15px; }
-    label { display: block; margin-bottom: 5px; font-weight: bold; }
-    input[type="number"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; }
-    
-    button { width: 100%; background: #4caf50; color: white; border: none; padding: 12px; font-size: 18px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-    button:hover { background: #45a049; }
-    
-    .result-box { margin-top: 20px; padding: 15px; border-radius: 5px; display: none; text-align: center; font-size: 18px; font-weight: bold; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Risk Prediction | Landslide Guardian</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        body { background: #f4f7f6; color: #1f2937; line-height: 1.6; }
+        header { background: #12372a; color: white; padding: 20px; text-align: center; }
+        nav { margin-top: 15px; }
+        nav a { color: white; margin: 0 10px; text-decoration: none; font-weight: bold; padding: 6px 12px; border-radius: 4px; border: 1px solid white; }
+        nav a:hover { background: white; color: #12372a; }
+        .container { max-width: 600px; margin: 30px auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 15px; text-align: left; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; }
+        input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        button { width: 100%; padding: 12px; background: #4caf50; color: white; border: none; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        button:hover { background: #45a049; }
+        #result { margin-top: 20px; padding: 15px; border-radius: 6px; display: none; text-align: left; }
+        .low { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .moderate { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+        .high { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .action-box { margin-top: 10px; padding-top: 10px; border-top: 1px dashed rgba(0,0,0,0.2); font-size: 14px; }
+    </style>
 </head>
 <body>
 
-  <header>
-    <h1>Landslide Guardian</h1>
-    <p>AI-Based Landslide Early Warning System</p>
-  </header>
+    <header>
+        <h1>Landslide Guardian</h1>
+        <p>AI-Based Landslide Early Warning System</p>
+        <nav>
+            <a href="index.html">Dashboard</a>
+            <a href="prediction.html">AI Prediction</a>
+            <a href="map.html">Hazard Map</a>
+        </nav>
+    </header>
 
-  <div class="container">
-    <h2>Input Environmental Data</h2>
-    
-    <form id="predictionForm">
-      <div class="form-group">
-        <label for="rainfall">Rainfall (mm):</label>
-        <input type="number" id="rainfall" placeholder="e.g., 72" required>
-      </div>
+    <div class="container">
+        <h2>Input Environmental Data</h2>
+        <form id="riskForm" style="margin-top: 15px;">
+            <div class="form-group">
+                <label>Rainfall (mm):</label>
+                <input type="number" id="rainfall" placeholder="e.g., 72" required>
+            </div>
+            <div class="form-group">
+                <label>Soil Moisture (%):</label>
+                <input type="number" id="moisture" placeholder="e.g., 68" required>
+            </div>
+            <div class="form-group">
+                <label>Temperature (°C):</label>
+                <input type="number" id="temp" placeholder="e.g., 24" required>
+            </div>
+            <div class="form-group">
+                <label>Slope Angle (°):</label>
+                <input type="number" id="slope" placeholder="e.g., 31" required>
+            </div>
+            <button type="button" onclick="calculateRisk()">Calculate Risk Score</button>
+        </form>
 
-      <div class="form-group">
-        <label for="moisture">Soil Moisture (%):</label>
-        <input type="number" id="moisture" placeholder="e.g., 68" required>
-      </div>
+        <div id="result"></div>
+    </div>
 
-      <div class="form-group">
-        <label for="temperature">Temperature (°C):</label>
-        <input type="number" id="temperature" placeholder="e.g., 24" required>
-      </div>
+    <script>
+        function calculateRisk() {
+            const rain = parseFloat(document.getElementById('rainfall').value) || 0;
+            const moisture = parseFloat(document.getElementById('moisture').value) || 0;
+            const temp = parseFloat(document.getElementById('temp').value) || 0;
+            const slope = parseFloat(document.getElementById('slope').value) || 0;
 
-      <div class="form-group">
-        <label for="slope">Slope Angle (°):</label>
-        <input type="number" id="slope" placeholder="e.g., 31" required>
-      </div>
+            // Weighted Risk Calculation
+            let score = Math.min(100, Math.round((rain * 0.4) + (moisture * 0.3) + (slope * 0.2) + (temp * 0.1)));
+            
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
 
-      <button type="submit">Calculate Risk Score</button>
-    </form>
-
-    <div id="result" class="result-box"></div>
-  </div>
-
-  <script>
-    document.getElementById('predictionForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-
-      // Read values from form fields
-      const rainfall = parseFloat(document.getElementById('rainfall').value);
-      const moisture = parseFloat(document.getElementById('moisture').value);
-      const slope = parseFloat(document.getElementById('slope').value);
-
-      // Simple prediction logic threshold
-      let riskScore = (rainfall * 0.4) + (moisture * 0.4) + (slope * 0.2);
-      riskScore = Math.min(Math.round(riskScore), 100);
-
-      const resultDiv = document.getElementById('result');
-      resultDiv.style.display = 'block';
-
-      if (riskScore >= 70) {
-        resultDiv.style.background = '#ffebee';
-        resultDiv.style.color = '#c62828';
-        resultDiv.innerText = `High Risk Warning! Risk Score: ${riskScore}/100`;
-      } else if (riskScore >= 40) {
-        resultDiv.style.background = '#fffde7';
-        resultDiv.style.color = '#f57f17';
-        resultDiv.innerText = `Moderate Risk. Risk Score: ${riskScore}/100`;
-      } else {
-        resultDiv.style.background = '#e8f5e9';
-        resultDiv.style.color = '#2e7d32';
-        resultDiv.innerText = `Low Risk. Risk Score: ${riskScore}/100`;
-      }
-    });
-  </script>
-
+            if (score < 40) {
+                resultDiv.className = 'low';
+                resultDiv.innerHTML = `<strong>Low Risk Score: ${score}/100</strong>
+                    <div class="action-box"><strong>Recommended Protocol:</strong> Normal monitoring. Conditions are stable.</div>`;
+            } else if (score < 70) {
+                resultDiv.className = 'moderate';
+                resultDiv.innerHTML = `<strong>Moderate Risk Warning! Score: ${score}/100</strong>
+                    <div class="action-box"><strong>Recommended Protocol:</strong> Issue advisory to local authorities. Monitor soil saturation closely.</div>`;
+            } else {
+                resultDiv.className = 'high';
+                resultDiv.innerHTML = `<strong>CRITICAL HIGH RISK ALERT! Score: ${score}/100</strong>
+                    <div class="action-box"><strong>Recommended Protocol:</strong> Trigger automated SMS alert to vulnerable zones. Initiate immediate slope evacuation!</div>`;
+            }
+        }
+    </script>
 </body>
 </html>

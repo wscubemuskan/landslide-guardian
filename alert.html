@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Landslide Guardian - Alerts</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f7f5;
+            color: #222;
+        }
+
+        header {
+            background: #12372a;
+            color: white;
+            padding: 20px 7%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+        }
+
+        .container {
+            padding: 40px 7%;
+        }
+
+        h1 {
+            color: #12372a;
+            margin-bottom: 10px;
+        }
+
+        .alert {
+            background: #fff3cd;
+            border-left: 6px solid #f0ad00;
+            padding: 20px;
+            margin-top: 25px;
+            border-radius: 10px;
+        }
+
+        .alert h2 {
+            color: #9a6800;
+            margin-bottom: 10px;
+        }
+
+        .safe {
+            background: #d9f2df;
+            border-left: 6px solid #198754;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 10px;
+        }
+
+        .safe h2 {
+            color: #146c43;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h2>🌎 Landslide Guardian</h2>
+
+    <nav>
+        <a href="index.html">Dashboard</a>
+        <a href="prediction.html">AI Prediction</a>
+        <a href="map.html">Map</a>
+        <a href="alerts.html">Alerts</a>
+    </nav>
+</header>
+
+<div class="container">
+
+    <h1>⚠️ Landslide Alerts</h1>
+
+    <p>
+        This page displays warnings based on environmental conditions.
+    </p>
+
+    <div class="alert">
+        <h2>⚠️ Moderate Risk Alert</h2>
+        <p>
+            Heavy rainfall and increasing soil moisture have been detected.
+            Please monitor the affected area carefully.
+        </p>
+    </div>
+
+    <div class="safe">
+        <h2>✓ Monitoring Active</h2>
+        <p>
+            The system is continuously monitoring rainfall, soil moisture,
+            temperature and slope conditions.
+        </p>
+    </div>
+
+</div>
+
+</body>
+</html>

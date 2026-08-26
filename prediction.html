@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Prediction | Landslide Guardian</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #f4f7f5;
+    color: #222;
+}
+
+header {
+    background: #12372a;
+    color: white;
+    padding: 20px 7%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header h2 {
+    font-size: 22px;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    margin-left: 20px;
+}
+
+.container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 30px;
+}
+
+.card {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+h1 {
+    color: #12372a;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    margin-bottom: 25px;
+    color: #666;
+}
+
+.input-group {
+    margin-bottom: 18px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 7px;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+button {
+    width: 100%;
+    padding: 14px;
+    background: #f39c12;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #d68910;
+}
+
+#result {
+    display: none;
+    margin-top: 25px;
+    padding: 20px;
+    border-radius: 10px;
+    background: #eef7f0;
+}
+
+#score {
+    font-size: 32px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.low {
+    color: green;
+}
+
+.moderate {
+    color: orange;
+}
+
+.high {
+    color: red;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h2>🌍 Landslide Guardian</h2>
+
+    <nav>
+        <a href="index.html">Dashboard</a>
+        <a href="prediction.html">AI Prediction</a>
+    </nav>
+</header>
+
+<div class="container">
+
+<div class="card">
+
+<h1>🤖 AI-Based Landslide Risk Prediction</h1>
+
+<p class="subtitle">
+Enter environmental conditions to estimate the landslide risk.
+</p>
+
+<div class="input-group">
+<label>Rainfall (mm)</label>
+<input type="number" id="rainfall" placeholder="Example: 72">
+</div>
+
+<div class="input-group">
+<label>Soil Moisture (%)</label>
+<input type="number" id="moisture" placeholder="Example: 68">
+</div>
+
+<div class="input-group">
+<label>Temperature (°C)</label>
+<input type="number" id="temperature" placeholder="Example: 24">
+</div>
+
+<div class="input-group">
+<label>Slope (°)</label>
+<input type="number" id="slope" placeholder="Example: 31">
+</div>
+
+<div class="input-group">
+<label>Ground Movement (mm)</label>
+<input type="number" id="movement" placeholder="Example: 5">
+</div>
+
+<button onclick="predictRisk()">
+🔍 Predict Landslide Risk
+</button>
+
+<div id="result">
+
+<h2>Prediction Result</h2>
+
+<div id="score"></div>
+
+<h3 id="level"></h3>
+
+<p id="message"></p>
+
+</div>
+
+</div>
+</div>
+
+<script>
+
+function predictRisk() {
+
+    let rainfall = Number(document.getElementById("rainfall").value);
+    let moisture = Number(document.getElementById("moisture").value);
+    let temperature = Number(document.getElementById("temperature").value);
+    let slope = Number(document.getElementById("slope").value);
+    let movement = Number(document.getElementById("movement").value);
+
+    if (
+        rainfall === 0 &&
+        moisture === 0 &&
+        temperature === 0 &&
+        slope === 0 &&
+        movement === 0
+    ) {
+        alert("Please enter the environmental values.");
+        return;
+    }
+
+    let risk = 0;
+
+    // Rainfall contribution
+    if (rainfall > 100) {
+        risk += 30;
+    } else if (rainfall > 50) {
+        risk += 20;
+    } else {
+        risk += 10;
+    }
+
+    // Soil moisture contribution
+    if (moisture > 80) {
+        risk += 25;
+    } else if (moisture > 60) {
+        risk += 18;
+    } else {
+        risk += 8;
+    }
+
+    // Slope contribution
+    if (slope > 40) {
+        risk += 25;
+    } else if (slope > 25) {
+        risk += 18;
+    } else {
+        risk += 8;
+    }
+
+    // Ground movement contribution
+    if (movement > 10) {
+        risk += 20;
+    } else if (movement > 5) {
+        risk += 12;
+    } else {
+        risk += 5;
+    }
+
+    // Keep score within 100
+    risk = Math.min(risk, 100);
+
+    let level = "";
+    let message = "";
+    let className = "";
+
+    if (risk < 40) {
+
+        level = "LOW RISK 🟢";
+        message = "Current environmental conditions indicate a relatively low landslide risk.";
+        className = "low";
+
+    } else if (risk < 70) {
+
+        level = "MODERATE RISK 🟠";
+        message = "Environmental conditions indicate a moderate possibility of landslide activity. Continue monitoring.";
+
+        className = "moderate";
+
+    } else {
+
+        level = "HIGH RISK 🔴";
+        message = "Multiple risk factors are elevated. Immediate monitoring and precautionary action are recommended.";
+
+        className = "high";
+    }
+
+    document.getElementById("result").style.display = "block";
+
+    document.getElementById("score").innerHTML =
+        "Risk Score: " + risk + "/100";
+
+    document.getElementById("level").innerHTML = level;
+
+    document.getElementById("level").className = className;
+
+    document.getElementById("message").innerHTML = message;
+}
+
+</script>
+
+</body>
+</html>

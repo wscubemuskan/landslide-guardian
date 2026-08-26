@@ -1,292 +1,253 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Prediction | Landslide Guardian</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Risk Prediction | Landslide Guardian</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+    body {
+      background: #f4f7f6;
+      color: #222;
+      padding-bottom: 40px;
+    }
+    header {
+      background: #12372a;
+      color: white;
+      padding: 20px 7.5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header h1 { font-size: 22px; }
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin-left: 15px;
+      font-weight: bold;
+    }
+    .container {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+    .card {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      margin-bottom: 25px;
+    }
+    h2 { margin-bottom: 15px; color: #12372a; }
+    
+    /* Input Form Styles */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .input-group {
+      display: flex;
+      flex-direction: column;
+    }
+    .input-group label {
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .input-group input, .input-group select {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    .btn-predict {
+      background: #12372a;
+      color: white;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+    }
+    .btn-predict:hover { background: #0e2b21; }
 
-<style>
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-}
+    /* Prediction Result Styles */
+    .result-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+    .score { font-size: 32px; font-weight: bold; }
+    .badge {
+      padding: 8px 16px;
+      border-radius: 20px;
+      color: white;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    .progress-bar-bg {
+      background: #e0e0e0;
+      border-radius: 10px;
+      height: 16px;
+      width: 100%;
+      overflow: hidden;
+      margin-bottom: 15px;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      transition: width 0.5s ease-in-out, background-color 0.5s ease-in-out;
+    }
+    .bg-low { background-color: #2e7d32; }
+    .bg-moderate { background-color: #ef6c00; }
+    .bg-high { background-color: #c62828; }
 
-body {
-    background: #f4f7f5;
-    color: #222;
-}
-
-header {
-    background: #12372a;
-    color: white;
-    padding: 20px 7%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-header h2 {
-    font-size: 22px;
-}
-
-nav a {
-    color: white;
-    text-decoration: none;
-    margin-left: 20px;
-}
-
-.container {
-    max-width: 800px;
-    margin: 40px auto;
-    padding: 30px;
-}
-
-.card {
-    background: white;
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-}
-
-h1 {
-    color: #12372a;
-    margin-bottom: 10px;
-}
-
-.subtitle {
-    margin-bottom: 25px;
-    color: #666;
-}
-
-.input-group {
-    margin-bottom: 18px;
-}
-
-label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 7px;
-}
-
-input {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    font-size: 16px;
-}
-
-button {
-    width: 100%;
-    padding: 14px;
-    background: #f39c12;
-    border: none;
-    border-radius: 8px;
-    color: white;
-    font-size: 17px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-button:hover {
-    background: #d68910;
-}
-
-#result {
-    display: none;
-    margin-top: 25px;
-    padding: 20px;
-    border-radius: 10px;
-    background: #eef7f0;
-}
-
-#score {
-    font-size: 32px;
-    font-weight: bold;
-    margin: 10px 0;
-}
-
-.low {
-    color: green;
-}
-
-.moderate {
-    color: orange;
-}
-
-.high {
-    color: red;
-}
-</style>
+    ul.factors {
+      margin-left: 20px;
+      margin-top: 10px;
+    }
+    ul.factors li { margin-bottom: 5px; }
+  </style>
 </head>
-
 <body>
 
-<header>
-    <h2>🌍 Landslide Guardian</h2>
-
+  <header>
+    <h1>🤖 Landslide Guardian</h1>
     <nav>
-        <a href="index.html">Dashboard</a>
-        <a href="prediction.html">AI Prediction</a>
+      <a href="index.html">Home</a>
+      <a href="prediction.html">Prediction</a>
+      <a href="map.html">Map</a>
+      <a href="alert.html">Alerts</a>
     </nav>
-</header>
+  </header>
 
-<div class="container">
+  <div class="container">
+    
+    <!-- Input Section -->
+    <div class="card">
+      <h2>Input Environmental Data</h2>
+      <div class="form-grid">
+        <div class="input-group">
+          <label>Rainfall (mm)</label>
+          <input type="number" id="rainfall" value="72">
+        </div>
+        <div class="input-group">
+          <label>Soil Moisture (%)</label>
+          <input type="number" id="moisture" value="68">
+        </div>
+        <div class="input-group">
+          <label>Temperature (°C)</label>
+          <input type="number" id="temp" value="24">
+        </div>
+        <div class="input-group">
+          <label>Slope Angle (°)</label>
+          <input type="number" id="slope" value="31">
+        </div>
+        <div class="input-group">
+          <label>Ground Movement</label>
+          <select id="movement">
+            <option value="yes" selected>Detected</option>
+            <option value="no">None</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-predict" onclick="calculateRisk()">Predict Risk</button>
+    </div>
 
-<div class="card">
+    <!-- Output/Result Section -->
+    <div class="card">
+      <h2>AI Risk Output</h2>
+      <div class="result-box">
+        <div>
+          <span>Predicted Risk Score:</span>
+          <div class="score" id="risk-score">--%</div>
+        </div>
+        <div id="risk-badge" class="badge bg-moderate">Pending...</div>
+      </div>
 
-<h1>🤖 AI-Based Landslide Risk Prediction</h1>
+      <div class="progress-bar-bg">
+        <div id="progress-fill" class="progress-bar-fill"></div>
+      </div>
 
-<p class="subtitle">
-Enter environmental conditions to estimate the landslide risk.
-</p>
+      <p><strong>Recommendation:</strong> <span id="recommendation">Click "Predict Risk" to view assessment.</span></p>
 
-<div class="input-group">
-<label>Rainfall (mm)</label>
-<input type="number" id="rainfall" placeholder="Example: 72">
-</div>
+      <h3 style="margin-top: 20px; font-size: 16px;">Key Factors Identified:</h3>
+      <ul class="factors" id="factors-list">
+        <li>Awaiting parameter calculation...</li>
+      </ul>
+    </div>
 
-<div class="input-group">
-<label>Soil Moisture (%)</label>
-<input type="number" id="moisture" placeholder="Example: 68">
-</div>
+  </div>
 
-<div class="input-group">
-<label>Temperature (°C)</label>
-<input type="number" id="temperature" placeholder="Example: 24">
-</div>
+  <script>
+    function calculateRisk() {
+      const rainfall = parseFloat(document.getElementById('rainfall').value) || 0;
+      const moisture = parseFloat(document.getElementById('moisture').value) || 0;
+      const temp = parseFloat(document.getElementById('temp').value) || 0;
+      const slope = parseFloat(document.getElementById('slope').value) || 0;
+      const movement = document.getElementById('movement').value;
 
-<div class="input-group">
-<label>Slope (°)</label>
-<input type="number" id="slope" placeholder="Example: 31">
-</div>
+      // Weighted score calculation
+      let score = (rainfall * 0.35) + (moisture * 0.35) + (slope * 0.8);
+      if (movement === 'yes') score += 20;
 
-<div class="input-group">
-<label>Ground Movement (mm)</label>
-<input type="number" id="movement" placeholder="Example: 5">
-</div>
+      // Clamp max value at 99%
+      let finalScore = Math.min(Math.round(score), 99);
 
-<button onclick="predictRisk()">
-🔍 Predict Landslide Risk
-</button>
+      const scoreEl = document.getElementById('risk-score');
+      const fillEl = document.getElementById('progress-fill');
+      const badgeEl = document.getElementById('risk-badge');
+      const recEl = document.getElementById('recommendation');
+      const factorsEl = document.getElementById('factors-list');
 
-<div id="result">
+      scoreEl.innerText = finalScore + "%";
+      fillEl.style.width = finalScore + "%";
 
-<h2>Prediction Result</h2>
+      let factors = [];
 
-<div id="score"></div>
+      if (finalScore < 40) {
+        badgeEl.className = "badge bg-low";
+        badgeEl.innerText = "🟢 LOW — Safe";
+        recEl.innerText = "Conditions are currently stable.";
+        fillEl.style.backgroundColor = "#2e7d32";
+      } else if (finalScore < 70) {
+        badgeEl.className = "badge bg-moderate";
+        badgeEl.innerText = "🟠 MODERATE — Monitor Area";
+        recEl.innerText = "Stay updated on weather forecasts and soil conditions.";
+        fillEl.style.backgroundColor = "#ef6c00";
+      } else {
+        badgeEl.className = "badge bg-high";
+        badgeEl.innerText = "🔴 HIGH — Immediate Warning";
+        recEl.innerText = "Evacuate high-risk zones and follow emergency protocol.";
+        fillEl.style.backgroundColor = "#c62828";
+      }
 
-<h3 id="level"></h3>
+      // Generate dynamic factors
+      if (rainfall > 50) factors.push("High rainfall level (" + rainfall + " mm)");
+      if (moisture > 60) factors.push("Elevated soil moisture (" + moisture + "%)");
+      if (slope > 30) factors.push("Steep slope angle (" + slope + "°)");
+      if (movement === 'yes') factors.push("Active ground movement detected");
 
-<p id="message"></p>
+      if (factors.length === 0) {
+        factors.push("All environmental metrics within standard safe ranges.");
+      }
 
-</div>
-
-</div>
-</div>
-
-<script>
-
-function predictRisk() {
-
-    let rainfall = Number(document.getElementById("rainfall").value);
-    let moisture = Number(document.getElementById("moisture").value);
-    let temperature = Number(document.getElementById("temperature").value);
-    let slope = Number(document.getElementById("slope").value);
-    let movement = Number(document.getElementById("movement").value);
-
-    if (
-        rainfall === 0 &&
-        moisture === 0 &&
-        temperature === 0 &&
-        slope === 0 &&
-        movement === 0
-    ) {
-        alert("Please enter the environmental values.");
-        return;
+      factorsEl.innerHTML = factors.map(f => `<li>${f}</li>`).join('');
     }
 
-    let risk = 0;
-
-    // Rainfall contribution
-    if (rainfall > 100) {
-        risk += 30;
-    } else if (rainfall > 50) {
-        risk += 20;
-    } else {
-        risk += 10;
-    }
-
-    // Soil moisture contribution
-    if (moisture > 80) {
-        risk += 25;
-    } else if (moisture > 60) {
-        risk += 18;
-    } else {
-        risk += 8;
-    }
-
-    // Slope contribution
-    if (slope > 40) {
-        risk += 25;
-    } else if (slope > 25) {
-        risk += 18;
-    } else {
-        risk += 8;
-    }
-
-    // Ground movement contribution
-    if (movement > 10) {
-        risk += 20;
-    } else if (movement > 5) {
-        risk += 12;
-    } else {
-        risk += 5;
-    }
-
-    // Keep score within 100
-    risk = Math.min(risk, 100);
-
-    let level = "";
-    let message = "";
-    let className = "";
-
-    if (risk < 40) {
-
-        level = "LOW RISK 🟢";
-        message = "Current environmental conditions indicate a relatively low landslide risk.";
-        className = "low";
-
-    } else if (risk < 70) {
-
-        level = "MODERATE RISK 🟠";
-        message = "Environmental conditions indicate a moderate possibility of landslide activity. Continue monitoring.";
-
-        className = "moderate";
-
-    } else {
-
-        level = "HIGH RISK 🔴";
-        message = "Multiple risk factors are elevated. Immediate monitoring and precautionary action are recommended.";
-
-        className = "high";
-    }
-
-    document.getElementById("result").style.display = "block";
-
-    document.getElementById("score").innerHTML =
-        "Risk Score: " + risk + "/100";
-
-    document.getElementById("level").innerHTML = level;
-
-    document.getElementById("level").className = className;
-
-    document.getElementById("message").innerHTML = message;
-}
-
-</script>
+    // Run initial calculation on load
+    calculateRisk();
+  </script>
 
 </body>
 </html>

@@ -1,159 +1,145 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Risk Prediction | Landslide Guardian</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
-        body { background: #f4f7f6; color: #1f2937; line-height: 1.6; }
-        header { background: #12372a; color: white; padding: 20px; text-align: center; }
-        nav { margin-top: 15px; }
-        nav a { color: white; margin: 0 10px; text-decoration: none; font-weight: bold; padding: 6px 12px; border-radius: 4px; border: 1px solid white; }
-        nav a:hover { background: white; color: #12372a; }
-        .container { max-width: 650px; margin: 30px auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .form-group { margin-bottom: 15px; text-align: left; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; }
-        input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
-        
-        .preset-btns { display: flex; gap: 10px; margin-bottom: 20px; }
-        .btn-secondary { background: #e0e0e0; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; flex: 1; }
-        .btn-secondary:hover { background: #d0d0d0; }
-        
-        button.calc-btn { width: 100%; padding: 12px; background: #4caf50; color: white; border: none; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; }
-        button.calc-btn:hover { background: #45a049; }
-        
-        #result { margin-top: 20px; padding: 15px; border-radius: 6px; display: none; text-align: left; }
-        .low { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .moderate { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
-        .high { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        
-        .action-box { margin-top: 10px; padding-top: 10px; border-top: 1px dashed rgba(0,0,0,0.2); font-size: 14px; }
-        .download-btn { margin-top: 10px; padding: 8px 15px; background: #12372a; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; display: inline-block; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Risk Prediction | Landslide Guardian</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+    body { background: #f4f7f6; color: #12372a; line-height: 1.6; }
+    header { background: #12372a; color: white; padding: 20px; text-align: center; }
+    nav { margin-top: 15px; }
+    nav a { color: white; margin: 0 10px; text-decoration: none; font-weight: bold; padding: 6px 12px; border-radius: 4px; }
+    nav a:hover { background: white; color: #12372a; }
+    .container { max-width: 600px; margin: 30px auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .form-group { margin-bottom: 15px; text-align: left; }
+    label { display: block; font-weight: bold; margin-bottom: 5px; }
+    input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+    .preset-btns { display: flex; gap: 10px; margin-bottom: 20px; }
+    .btn { background: #436850; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; flex: 1; }
+    .btn:hover { background: #12372a; }
+    .btn-submit { background: #007bff; width: 100%; font-size: 16px; margin-top: 10px; }
+    .btn-submit:hover { background: #0056b3; }
+    .result { margin-top: 20px; padding: 15px; border-radius: 4px; display: none; text-align: center; font-weight: bold; }
+  </style>
 </head>
 <body>
 
-    <header>
-        <h1>Landslide Guardian</h1>
-        <p>AI-Based Landslide Early Warning System</p>
-        <nav>
-            <a href="index.html">Dashboard</a>
-            <a href="prediction.html">AI Prediction</a>
-            <a href="map.html">Hazard Map</a>
-        </nav>
-    </header>
+  <header>
+    <h1>Landslide Guardian</h1>
+    <p>AI-Based Landslide Early Warning System</p>
+    <nav>
+      <a href="index.html">Dashboard</a>
+      <a href="prediction.html" style="background: white; color: #12372a;">AI Prediction</a>
+      <a href="map.html">Hazard Map</a>
+    </nav>
+  </header>
 
-    <div class="container">
-        <h2>Input Environmental Data</h2>
-        
-        <div class="preset-btns">
-            <button class="btn-secondary" onclick="loadPreset(20, 30, 22, 15)">Load Low Risk Data</button>
-            <button class="btn-secondary" onclick="loadPreset(85, 92, 28, 45)">Load Monsoon Alert Data</button>
+  <div class="container">
+    <h2>Input Environmental Data</h2>
+    
+    <div class="preset-btns">
+      <button type="button" class="btn" onclick="loadLowRisk()">Load Low Risk Data</button>
+      <button type="button" class="btn" onclick="loadMonsoonAlert()">Load Monsoon Alert Data</button>
+    </div>
+
+    <form id="riskForm">
+      <div class="form-group">
+        <label for="location">Detected Location:</label>
+        <div style="display: flex; gap: 10px;">
+          <input type="text" id="location" placeholder="Click button to detect" readonly>
+          <button type="button" onclick="getLocation()" style="padding: 8px 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">📍 Detect Location</button>
         </div>
+      </div>
 
-        <form id="riskForm">
-            <div class="form-group">
-    <label for="location">Detected Location:</label>
-    <div style="display: flex; gap: 10px;">
-        <input type="text" id="location" placeholder="Click button to detect" readonly>
-        <button type="button" onclick="getLocation()" style="padding: 8px 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">📍 Detect Location</button>
-    </div>
-</div>
-            
-            
-            <div class="form-group">
-                <label>Rainfall (mm):</label>
-                <input type="number" id="rainfall" placeholder="e.g., 72" required>
-            </div>
-            <div class="form-group">
-                <label>Soil Moisture (%):</label>
-                <input type="number" id="moisture" placeholder="e.g., 68" required>
-            </div>
-            <div class="form-group">
-                <label>Temperature (°C):</label>
-                <input type="number" id="temp" placeholder="e.g., 24" required>
-            </div>
-            <div class="form-group">
-                <label>Slope Angle (°):</label>
-                <input type="number" id="slope" placeholder="e.g., 31" required>
-            </div>
-            <button type="button" class="calc-btn" onclick="calculateRisk()">Calculate Risk Score</button>
-        </form>
+      <div class="form-group">
+        <label>Rainfall (mm):</label>
+        <input type="number" id="rainfall" placeholder="e.g., 72" required>
+      </div>
 
-        <div id="result"></div>
-    </div>
+      <div class="form-group">
+        <label>Soil Moisture (%):</label>
+        <input type="number" id="moisture" placeholder="e.g., 68" required>
+      </div>
 
-    <script>
-        function loadPreset(r, m, t, s) {
-            document.getElementById('rainfall').value = r;
-            document.getElementById('moisture').value = m;
-            document.getElementById('temp').value = t;
-            document.getElementById('slope').value = s;
-        }
+      <div class="form-group">
+        <label>Temperature (°C):</label>
+        <input type="number" id="temp" placeholder="e.g., 24" required>
+      </div>
 
-        function calculateRisk() {
-            const rain = parseFloat(document.getElementById('rainfall').value) || 0;
-            const moisture = parseFloat(document.getElementById('moisture').value) || 0;
-            const temp = parseFloat(document.getElementById('temp').value) || 0;
-            const slope = parseFloat(document.getElementById('slope').value) || 0;
+      <div class="form-group">
+        <label>Slope Angle (°):</label>
+        <input type="number" id="slope" placeholder="e.g., 35" required>
+      </div>
 
-            let score = Math.min(100, Math.round((rain * 0.4) + (moisture * 0.3) + (slope * 0.2) + (temp * 0.1)));
-            const resultDiv = document.getElementById('result');
-            resultDiv.style.display = 'block';
+      <button type="button" class="btn btn-submit" onclick="predictRisk()">Predict Risk Level</button>
+    </form>
 
-            let level = '', action = '';
-            if (score < 40) {
-                resultDiv.className = 'low';
-                level = 'LOW RISK';
-                action = 'Normal monitoring. Ground conditions stable.';
-            } else if (score < 70) {
-                resultDiv.className = 'moderate';
-                level = 'MODERATE RISK WARNING';
-                action = 'Issue advisory to local disaster management team. Increase sensor logging rate.';
-            } else {
-                resultDiv.className = 'high';
-                level = 'CRITICAL HIGH RISK ALERT';
-                action = 'Trigger automated emergency SMS alerts. Immediate slope area evacuation recommended!';
-            }
+    <div id="resultBox" class="result"></div>
+  </div>
 
-            resultDiv.innerHTML = `
-                <strong>${level}! Risk Score: ${score}/100</strong>
-                <div class="action-box">
-                    <strong>Action Protocol:</strong> ${action}
-                </div>
-                            `;
-        }
-
-        function downloadReport(level, score, action) {
-            const content = `LANDSLIDE GUARDIAN - ALERT REPORT\n-------------------------------\nStatus: ${level}\nRisk Score: ${score}/100\nRecommended Action: ${action}\nTimestamp: ${new Date().toLocaleString()}`;
-            const blob = new Blob([content], { type: 'text/plain' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = 'Landslide_Risk_Report.txt';
-            a.click();
-            function getLocation() {
-    const locationInput = document.getElementById('location');
-    if (navigator.geolocation) {
+  <script>
+    function getLocation() {
+      const locationInput = document.getElementById('location');
+      if (navigator.geolocation) {
         locationInput.value = "Fetching GPS coordinates...";
         navigator.geolocation.getCurrentPosition(
-            (position) => {
-                const lat = position.coords.latitude.toFixed(4);
-                const lon = position.coords.longitude.toFixed(4);
-                locationInput.value = `Lat: ${lat}, Lon: ${lon}`;
-            },
-            (error) => {
-                alert("Geolocation error: " + error.message);
-                locationInput.value = "Location access denied";
-            }
+          (position) => {
+            const lat = position.coords.latitude.toFixed(4);
+            const lon = position.coords.longitude.toFixed(4);
+            locationInput.value = `Lat: ${lat}, Lon: ${lon}`;
+          },
+          (error) => {
+            alert("Geolocation error: " + error.message);
+            locationInput.value = "Location access denied";
+          }
         );
-    } else {
+      } else {
         alert("Geolocation is not supported by this browser.");
+      }
     }
-}
-            
-            
-        }
-    </script>
+
+    function loadLowRisk() {
+      document.getElementById('rainfall').value = 15;
+      document.getElementById('moisture').value = 25;
+      document.getElementById('temp').value = 28;
+      document.getElementById('slope').value = 12;
+    }
+
+    function loadMonsoonAlert() {
+      document.getElementById('rainfall').value = 120;
+      document.getElementById('moisture').value = 85;
+      document.getElementById('temp').value = 22;
+      document.getElementById('slope').value = 40;
+    }
+
+    function predictRisk() {
+      const rain = parseFloat(document.getElementById('rainfall').value);
+      const moisture = parseFloat(document.getElementById('moisture').value);
+      const slope = parseFloat(document.getElementById('slope').value);
+      const resultBox = document.getElementById('resultBox');
+
+      if (isNaN(rain) || isNaN(moisture) || isNaN(slope)) {
+        alert("Please fill in all environmental parameters.");
+        return;
+      }
+
+      resultBox.style.display = "block";
+
+      if (rain > 100 && moisture > 75 && slope > 30) {
+        resultBox.style.background = "#ff4d4d";
+        resultBox.style.color = "white";
+        resultBox.innerText = "HIGH RISK: Landslide Warning Active!";
+      } else if (rain > 50 && moisture > 50) {
+        resultBox.style.background = "#ffcc00";
+        resultBox.style.color = "black";
+        resultBox.innerText = "MODERATE RISK: Monitor Conditions Closely.";
+      } else {
+        resultBox.style.background = "#28a745";
+        resultBox.style.color = "white";
+        resultBox.innerText = "LOW RISK: Conditions Normal.";
+      }
+    }
+  </script>
 </body>
 </html>

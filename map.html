@@ -1,52 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hazard Map | Landslide Guardian</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
-        body { background: #f4f7f6; color: #1f2937; }
-        header { background: #12372a; color: white; padding: 20px; text-align: center; }
-        nav { margin-top: 15px; }
-        nav a { color: white; margin: 0 10px; text-decoration: none; font-weight: bold; padding: 6px 12px; border-radius: 4px; border: 1px solid white; }
-        nav a:hover { background: white; color: #12372a; }
-        .container { max-width: 900px; margin: 30px auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        #map { height: 450px; width: 100%; border-radius: 6px; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hazard Map | Landslide Guardian</title>
+  
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+    body { background: #f4f7f6; color: #12372a; line-height: 1.6; }
+    header { background: #12372a; color: white; padding: 20px; text-align: center; }
+    
+    nav { margin-top: 15px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+    nav a { color: white; margin: 0 10px; text-decoration: none; font-weight: bold; padding: 6px 12px; border-radius: 4px; transition: background 0.3s; }
+    nav a:hover { background: white; color: #12372a; }
+    .nav-active { background: white; color: #12372a !important; }
+    .nav-github { background: #24292e; color: white; border: 1px solid #444; }
+    .nav-github:hover { background: #000; color: white !important; }
+
+    .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
+    #map { height: 500px; width: 100%; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+  </style>
 </head>
 <body>
 
-    <header>
-        <h1>Landslide Guardian</h1>
-        <p>AI-Based Landslide Early Warning System</p>
-        <nav>
-            <a href="index.html">Dashboard</a>
-            <a href="prediction.html">AI Prediction</a>
-            <a href="map.html">Hazard Map</a>
-        </nav>
-    </header>
+  <header>
+    <h1>Landslide Guardian</h1>
+    <p>Regional Hazard & Risk Map</p>
+    <nav>
+      <a href="index.html">Dashboard</a>
+      <a href="prediction.html">AI Prediction</a>
+      <a href="map.html" class="nav-active">Hazard Map</a>
+      <a href="https://github.com/wscubemuskan/landslide-guardian" target="_blank" class="nav-github">📂 View Code</a>
+    </nav>
+  </header>
 
-    <div class="container">
-        <h2>Live Regional Risk Monitoring Map</h2>
-        <p style="margin-bottom: 15px; color: #666;">Real-time hazardous zone monitoring in vulnerable hilly regions.</p>
-        <div id="map"></div>
-    </div>
+  <div class="container">
+    <h2 style="margin-bottom: 15px;">Active Hazard Zones</h2>
+    <div id="map"></div>
+  </div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script>
-        // Initialize map centered on a sample region
-        var map = L.map('map').setView([20.5937, 78.9629], 5);
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const map = L.map('map').setView([20.5937, 78.9629], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
+    // Sample Hazard Markers
+    const zones = [
+      { name: "Shimla Zone", lat: 31.1048, lng: 77.1734, risk: "High", color: "red" },
+      { name: "Darjeeling Sector", lat: 27.0410, lng: 88.2663, risk: "Moderate", color: "orange" },
+      { name: "Wayanad Region", lat: 11.6854, lng: 76.1320, risk: "High", color: "red" },
+      { name: "Dehradun Outskirts", lat: 30.3165, lng: 78.0322, risk: "Low", color: "green" }
+    ];
 
-        // Add sample risk zone markers
-        L.circle([30.3165, 78.0322], { color: 'red', fillColor: '#f03', fillOpacity: 0.5, radius: 25000 }).addTo(map).bindPopup("<b>Uttarakhand Zone A</b><br>Risk Score: 85/100 (Critical Alert)");
-        L.circle([27.0360, 88.2627], { color: 'orange', fillColor: '#f0a', fillOpacity: 0.5, radius: 20000 }).addTo(map).bindPopup("<b>Darjeeling Sector 3</b><br>Risk Score: 62/100 (Moderate Warning)");
-        L.circle([11.4102, 76.6950], { color: 'green', fillColor: '#0f0', fillOpacity: 0.5, radius: 15000 }).addTo(map).bindPopup("<b>Nilgiris Sector B</b><br>Risk Score: 24/100 (Stable Condition)");
-    </script>
+    zones.forEach(zone => {
+      L.circle([zone.lat, zone.lng], {
+        color: zone.color,
+        fillColor: zone.color,
+        fillOpacity: 0.5,
+        radius: 20000
+      }).addTo(map).bindPopup(`<b>${zone.name}</b><br>Risk Status: ${zone.risk}`);
+    });
+  </script>
 </body>
 </html>

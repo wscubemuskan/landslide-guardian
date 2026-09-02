@@ -24,14 +24,19 @@
     .form-group { margin-bottom: 15px; text-align: left; }
     label { display: block; font-weight: bold; margin-bottom: 5px; }
     input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+    
+    .search-box { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+    .search-box input { flex: 1; min-width: 180px; }
+    
     .preset-btns { display: flex; gap: 10px; margin-bottom: 20px; }
     .btn { background: #436850; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; flex: 1; font-weight: bold; }
     .btn:hover { background: #12372a; }
+    .btn-geo { background: #17a2b8; flex: 0 0 auto; }
+    .btn-geo:hover { background: #138496; }
     .btn-submit { background: #007bff; width: 100%; font-size: 16px; margin-top: 10px; }
     .btn-submit:hover { background: #0056b3; }
     .result { margin-top: 20px; padding: 15px; border-radius: 4px; display: none; text-align: center; font-weight: bold; }
     
-    .search-box { display: flex; gap: 10px; margin-bottom: 10px; }
     #map { height: 250px; width: 100%; border-radius: 6px; margin-bottom: 15px; border: 1px solid #ccc; }
   </style>
 </head>
@@ -50,14 +55,15 @@
 
   <div class="container">
     <h2>Calculate Landslide Risk</h2>
-    <p style="margin-bottom: 15px; color: #555;">Search a location or click on the map to automatically fill slope data, or use test presets.</p>
+    <p style="margin-bottom: 15px; color: #555;">Use GPS location, search a city, or click on the map to set coordinates.</p>
     
     <!-- Location Search & Interactive Map -->
     <div class="form-group">
-      <label>Location Search / Map Selection</label>
+      <label>Location Selection</label>
       <div class="search-box">
-        <input type="text" id="location-input" placeholder="Enter location (e.g., Shimla, Darjeeling)...">
-        <button type="button" class="btn" style="flex: 0 0 80px;" onclick="searchLocation()">Search</button>
+        <input type="text" id="location-input" placeholder="Enter location (e.g., Shimla)...">
+        <button type="button" class="btn" onclick="searchLocation()">Search</button>
+        <button type="button" class="btn btn-geo" onclick="getUserLocation()">📍 Use My Location</button>
       </div>
       <div id="map"></div>
     </div>
@@ -101,16 +107,36 @@
 
     let marker;
 
-    map.on('click', function(e) {
-      const lat = e.latlng.lat;
-      const lng = e.latlng.lng;
-      
+    function updateLocationMarker(lat, lng, popupText = "Selected Location") {
+      map.setView([lat, lng], 13);
       if (marker) { map.removeLayer(marker); }
-      marker = L.marker([lat, lng]).addTo(map);
+      marker = L.marker([lat, lng]).addTo(map).bindPopup(popupText).openPopup();
 
-      // Estimate slope pseudo-randomly based on coordinates for interactive demo
+      // Estimate slope based on coordinates
       const estimatedSlope = Math.floor((Math.abs(Math.sin(lat + lng)) * 40) + 10);
       document.getElementById('slope').value = estimatedSlope;
+    }
+
+    // Geolocation API to fetch live GPS location
+    function getUserLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            updateLocationMarker(lat, lng, "📍 You are here");
+          },
+          (error) => {
+            alert("Unable to retrieve your location. Please ensure location permissions are enabled in your browser.");
+          }
+        );
+      } else {
+        alert("Geolocation is not supported by your browser.");
+      }
+    }
+
+    map.on('click', function(e) {
+      updateLocationMarker(e.latlng.lat, e.latlng.lng, "Selected Map Point");
     });
 
     function searchLocation() {
@@ -121,15 +147,7 @@
         .then(response => response.json())
         .then(data => {
           if (data && data.length > 0) {
-            const lat = parseFloat(data[0].lat);
-            const lon = parseFloat(data[0].lon);
-            map.setView([lat, lon], 12);
-            
-            if (marker) { map.removeLayer(marker); }
-            marker = L.marker([lat, lon]).addTo(map).bindPopup(data[0].display_name).openPopup();
-            
-            const estimatedSlope = Math.floor((Math.abs(Math.sin(lat + lon)) * 40) + 10);
-            document.getElementById('slope').value = estimatedSlope;
+            updateLocationMarker(parseFloat(data[0].lat), parseFloat(data[0].lon), data[0].display_name);
           } else {
             alert("Location not found. Please try another search.");
           }

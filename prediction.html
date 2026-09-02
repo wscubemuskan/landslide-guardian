@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI Risk Prediction | Landslide Guardian</title>
-
+  
   <!-- Leaflet CSS for Interactive Map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
@@ -12,199 +12,168 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
     body { background: #f4f7f6; color: #12372a; line-height: 1.6; }
     header { background: #12372a; color: white; padding: 20px; text-align: center; }
-    nav { margin-top: 15px; }
-    nav a { color: white; margin: 0 10px; text-decoration: none; font-weight: bold; padding: 6px 12px; border-radius: 4px; }
+    
+    nav { margin-top: 15px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+    nav a { color: white; margin: 0 10px; text-decoration: none; font-weight: bold; padding: 6px 12px; border-radius: 4px; transition: background 0.3s; }
     nav a:hover { background: white; color: #12372a; }
-    .container { max-width: 650px; margin: 30px auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .nav-active { background: white; color: #12372a !important; }
+    .nav-github { background: #24292e; color: white; border: 1px solid #444; }
+    .nav-github:hover { background: #000; color: white !important; }
+
+    .container { max-width: 650px; margin: 30px auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
     .form-group { margin-bottom: 15px; text-align: left; }
     label { display: block; font-weight: bold; margin-bottom: 5px; }
     input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
     .preset-btns { display: flex; gap: 10px; margin-bottom: 20px; }
-    .btn { background: #436850; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; flex: 1; }
+    .btn { background: #436850; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; flex: 1; font-weight: bold; }
     .btn:hover { background: #12372a; }
     .btn-submit { background: #007bff; width: 100%; font-size: 16px; margin-top: 10px; }
     .btn-submit:hover { background: #0056b3; }
     .result { margin-top: 20px; padding: 15px; border-radius: 4px; display: none; text-align: center; font-weight: bold; }
     
-    #map { height: 260px; width: 100%; margin-top: 10px; border-radius: 6px; border: 1px solid #ccc; z-index: 1; }
+    .search-box { display: flex; gap: 10px; margin-bottom: 10px; }
+    #map { height: 250px; width: 100%; border-radius: 6px; margin-bottom: 15px; border: 1px solid #ccc; }
   </style>
 </head>
 <body>
 
   <header>
     <h1>Landslide Guardian</h1>
-    <p>AI-Based Landslide Early Warning System</p>
+    <p>AI Risk Calculation Tool</p>
     <nav>
       <a href="index.html">Dashboard</a>
-      <a href="prediction.html" style="background: white; color: #12372a;">AI Prediction</a>
+      <a href="prediction.html" class="nav-active">AI Prediction</a>
       <a href="map.html">Hazard Map</a>
+      <a href="https://github.com/wscubemuskan/landslide-guardian" target="_blank" class="nav-github">📂 View Code</a>
     </nav>
   </header>
 
   <div class="container">
-    <h2>Input Environmental Data</h2>
+    <h2>Calculate Landslide Risk</h2>
+    <p style="margin-bottom: 15px; color: #555;">Search a location or click on the map to automatically fill slope data, or use test presets.</p>
     
-    <div class="preset-btns">
-      <button type="button" class="btn" onclick="loadLowRisk()">Load Low Risk Data</button>
-      <button type="button" class="btn" onclick="loadHighRisk()">Load High Risk Data</button>
+    <!-- Location Search & Interactive Map -->
+    <div class="form-group">
+      <label>Location Search / Map Selection</label>
+      <div class="search-box">
+        <input type="text" id="location-input" placeholder="Enter location (e.g., Shimla, Darjeeling)...">
+        <button type="button" class="btn" style="flex: 0 0 80px;" onclick="searchLocation()">Search</button>
+      </div>
+      <div id="map"></div>
     </div>
 
-    <form id="riskForm">
+    <div class="preset-btns">
+      <button class="btn" onclick="setPreset('low')">Load Low Risk Preset</button>
+      <button class="btn" onclick="setPreset('high')" style="background: #d9534f;">Load High Risk Preset</button>
+    </div>
+
+    <form id="risk-form" onsubmit="calculateRisk(event)">
       <div class="form-group">
-        <label for="locationInput">Search Place or Location Name:</label>
-        <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-          <input type="text" id="locationInput" placeholder="Type city or place (e.g., Guwahati, Shimla)">
-          <button type="button" onclick="searchLocation()" style="padding: 8px 12px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; white-space: nowrap;">🔍 Search</button>
-          <button type="button" onclick="getLocation()" style="padding: 8px 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; white-space: nowrap;">📍 GPS</button>
-        </div>
-
-        <div style="display: flex; gap: 10px; margin-bottom: 8px;">
-          <input type="text" id="coordsOutput" placeholder="Coordinates will appear here" readonly style="background: #e9ecef;">
-        </div>
-        
-        <!-- Live Map Display -->
-        <div id="map"></div>
+        <label for="rainfall">Rainfall (mm in 24h)</label>
+        <input type="number" id="rainfall" required min="0" placeholder="e.g., 50">
       </div>
-
       <div class="form-group">
-        <label>Rainfall (mm):</label>
-        <input type="number" id="rainfall" placeholder="e.g., 72" required>
+        <label for="moisture">Soil Moisture (%)</label>
+        <input type="number" id="moisture" required min="0" max="100" placeholder="e.g., 40">
       </div>
-
       <div class="form-group">
-        <label>Soil Moisture (%):</label>
-        <input type="number" id="moisture" placeholder="e.g., 68" required>
+        <label for="slope">Slope Angle (degrees)</label>
+        <input type="number" id="slope" required min="0" max="90" placeholder="e.g., 25">
       </div>
-
       <div class="form-group">
-        <label>Temperature (°C):</label>
-        <input type="number" id="temp" placeholder="e.g., 24" required>
+        <label for="temp">Temperature (°C)</label>
+        <input type="number" id="temp" required placeholder="e.g., 22">
       </div>
-
-      <div class="form-group">
-        <label>Slope Angle (°):</label>
-        <input type="number" id="slope" placeholder="e.g., 35" required>
-      </div>
-
-      <button type="button" class="btn btn-submit" onclick="predictRisk()">Predict Risk Level</button>
+      <button type="submit" class="btn btn-submit">Predict Risk</button>
     </form>
 
-    <div id="resultBox" class="result"></div>
+    <div id="result-box" class="result"></div>
   </div>
 
-  <!-- Leaflet JS for Interactive Map -->
+  <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
   <script>
-    let map = L.map('map').setView([20.5937, 78.9629], 5);
-    let marker;
-
+    // Map Setup
+    const map = L.map('map').setView([20.5937, 78.9629], 5);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    function updateMapMarker(lat, lon, labelText) {
-      map.setView([lat, lon], 12);
-      if (marker) {
-        marker.setLatLng([lat, lon]);
-      } else {
-        marker = L.marker([lat, lon]).addTo(map);
-      }
-      marker.bindPopup(`<b>${labelText}</b><br>Lat: ${lat}, Lon: ${lon}`).openPopup();
-      document.getElementById('coordsOutput').value = `Lat: ${lat}, Lon: ${lon}`;
-    }
+    let marker;
 
-    // Search Location Name using OpenStreetMap Geocoding API
-    async function searchLocation() {
-      const query = document.getElementById('locationInput').value.trim();
-      if (!query) {
-        alert("Please enter a place name to search.");
-        return;
-      }
-
-      try {
-        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
-        const data = await response.json();
-
-        if (data && data.length > 0) {
-          const lat = parseFloat(data[0].lat).toFixed(4);
-          const lon = parseFloat(data[0].lon).toFixed(4);
-          const placeName = data[0].display_name.split(',')[0];
-          updateMapMarker(lat, lon, placeName);
-        } else {
-          alert("Location not found. Try entering a clearer city or region name.");
-        }
-      } catch (error) {
-        alert("Error fetching location data. Check your internet connection.");
-      }
-    }
-
-    // Map Click Pin Handler
     map.on('click', function(e) {
-      const lat = e.latlng.lat.toFixed(4);
-      const lon = e.latlng.lng.toFixed(4);
-      updateMapMarker(lat, lon, "Custom Pin Location");
+      const lat = e.latlng.lat;
+      const lng = e.latlng.lng;
+      
+      if (marker) { map.removeLayer(marker); }
+      marker = L.marker([lat, lng]).addTo(map);
+
+      // Estimate slope pseudo-randomly based on coordinates for interactive demo
+      const estimatedSlope = Math.floor((Math.abs(Math.sin(lat + lng)) * 40) + 10);
+      document.getElementById('slope').value = estimatedSlope;
     });
 
-    // Detect GPS Location
-    function getLocation() {
-      if (navigator.geolocation) {
-        document.getElementById('coordsOutput').value = "Fetching GPS coordinates...";
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const lat = position.coords.latitude.toFixed(4);
-            const lon = position.coords.longitude.toFixed(4);
-            updateMapMarker(lat, lon, "Your GPS Location");
-          },
-          (error) => {
-            alert("Geolocation error: " + error.message);
-            document.getElementById('coordsOutput').value = "Location access denied";
+    function searchLocation() {
+      const query = document.getElementById('location-input').value;
+      if (!query) return;
+
+      fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data && data.length > 0) {
+            const lat = parseFloat(data[0].lat);
+            const lon = parseFloat(data[0].lon);
+            map.setView([lat, lon], 12);
+            
+            if (marker) { map.removeLayer(marker); }
+            marker = L.marker([lat, lon]).addTo(map).bindPopup(data[0].display_name).openPopup();
+            
+            const estimatedSlope = Math.floor((Math.abs(Math.sin(lat + lon)) * 40) + 10);
+            document.getElementById('slope').value = estimatedSlope;
+          } else {
+            alert("Location not found. Please try another search.");
           }
-        );
+        });
+    }
+
+    function setPreset(type) {
+      if (type === 'low') {
+        document.getElementById('rainfall').value = 15;
+        document.getElementById('moisture').value = 25;
+        document.getElementById('slope').value = 12;
+        document.getElementById('temp').value = 26;
       } else {
-        alert("Geolocation is not supported by this browser.");
+        document.getElementById('rainfall').value = 120;
+        document.getElementById('moisture').value = 85;
+        document.getElementById('slope').value = 42;
+        document.getElementById('temp').value = 18;
       }
     }
 
-    function loadLowRisk() {
-      document.getElementById('rainfall').value = 15;
-      document.getElementById('moisture').value = 25;
-      document.getElementById('temp').value = 28;
-      document.getElementById('slope').value = 12;
-    }
-
-    function loadHighRisk() {
-      document.getElementById('rainfall').value = 140;
-      document.getElementById('moisture').value = 82;
-      document.getElementById('temp').value = 26;
-      document.getElementById('slope').value = 42;
-    }
-
-    function predictRisk() {
-      const rain = parseFloat(document.getElementById('rainfall').value);
+    function calculateRisk(e) {
+      e.preventDefault();
+      const rainfall = parseFloat(document.getElementById('rainfall').value);
       const moisture = parseFloat(document.getElementById('moisture').value);
       const slope = parseFloat(document.getElementById('slope').value);
-      const resultBox = document.getElementById('resultBox');
+      
+      let score = (rainfall * 0.4) + (moisture * 0.3) + (slope * 0.3);
+      score = Math.min(Math.round(score), 100);
 
-      if (isNaN(rain) || isNaN(moisture) || isNaN(slope)) {
-        alert("Please fill in all environmental parameters.");
-        return;
-      }
+      const resultBox = document.getElementById('result-box');
+      resultBox.style.display = 'block';
 
-      resultBox.style.display = "block";
-
-      if (rain > 100 && moisture > 75 && slope > 30) {
-        resultBox.style.background = "#ff4d4d";
-        resultBox.style.color = "white";
-        resultBox.innerText = "HIGH RISK: Landslide Warning Active!";
-      } else if (rain > 50 && moisture > 50) {
-        resultBox.style.background = "#ffcc00";
-        resultBox.style.color = "black";
-        resultBox.innerText = "MODERATE RISK: Monitor Conditions Closely.";
+      if (score < 40) {
+        resultBox.style.background = '#d4edda';
+        resultBox.style.color = '#155724';
+        resultBox.innerHTML = `LOW RISK (${score}/100)<br><small>Environmental parameters are within normal safety limits.</small>`;
+      } else if (score < 70) {
+        resultBox.style.background = '#fff3cd';
+        resultBox.style.color = '#856404';
+        resultBox.innerHTML = `MODERATE RISK (${score}/100)<br><small>Caution advised. Monitor localized ground condition updates.</small>`;
       } else {
-        resultBox.style.background = "#28a745";
-        resultBox.style.color = "white";
-        resultBox.innerText = "LOW RISK: Conditions Normal.";
+        resultBox.style.background = '#f8d7da';
+        resultBox.style.color = '#721c24';
+        resultBox.innerHTML = `HIGH RISK (${score}/100)<br><small>Warning: High probability of slope instability!</small>`;
       }
     }
   </script>

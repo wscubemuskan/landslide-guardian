@@ -1,451 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Landslide Guardian</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Landslide Guardian | Early Warning Dashboard</title>
+  
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+    body { background: #f4f7f6; color: #12372a; line-height: 1.6; }
+    
+    header { background: #12372a; color: white; padding: 20px; text-align: center; }
+    header h1 { font-size: 28px; margin-bottom: 5px; }
+    
+    nav { margin-top: 15px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+    nav a { color: white; text-decoration: none; font-weight: bold; padding: 8px 16px; border-radius: 4px; transition: background 0.3s; }
+    nav a:hover { background: white; color: #12372a; }
+    .nav-active { background: white; color: #12372a !important; }
+    .nav-github { background: #24292e; color: white; border: 1px solid #444; }
+    .nav-github:hover { background: #000; color: white !important; }
 
-<style>
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-}
+    .hero { background: #436850; color: white; padding: 40px 20px; text-align: center; }
+    .hero h2 { font-size: 32px; margin-bottom: 10px; }
+    .hero p { max-width: 600px; margin: 0 auto 20px auto; font-size: 16px; }
+    .btn-hero { background: #fbfada; color: #12372a; padding: 12px 24px; font-weight: bold; text-decoration: none; border-radius: 5px; display: inline-block; }
+    .btn-hero:hover { background: #adbbda; }
 
-body {
-    background: #f4f7f6;
-    color: #1f2937;
-}
+    .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
+    .dashboard-title { font-size: 22px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
 
-header {
-    background: #12372a;
-    color: white;
-    padding: 20px 7%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-}
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
+    .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.08); text-align: center; }
+    .card h3 { font-size: 14px; color: #666; font-weight: normal; margin-bottom: 8px; }
+    .card .value { font-size: 24px; font-weight: bold; color: #12372a; }
+    .card .subtext { font-size: 12px; color: #888; margin-top: 4px; }
 
-.logo {
-    font-size: 25px;
-    font-weight: bold;
-}
-
-nav a {
-    color: white;
-    text-decoration: none;
-    margin-left: 20px;
-    cursor: pointer;
-}
-
-.hero {
-    background: linear-gradient(135deg, #164b35, #287653);
-    color: white;
-    padding: 70px 7%;
-}
-
-.hero h1 {
-    font-size: 42px;
-    margin-bottom: 15px;
-}
-
-.hero p {
-    max-width: 700px;
-    font-size: 18px;
-    line-height: 1.6;
-}
-
-.container {
-    width: 86%;
-    max-width: 1200px;
-    margin: 35px auto;
-}
-
-.section-title {
-    margin-bottom: 20px;
-    font-size: 28px;
-}
-
-.cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-    gap: 18px;
-}
-
-.card {
-    background: white;
-    padding: 22px;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-}
-
-.card h3 {
-    color: #555;
-    font-size: 16px;
-    margin-bottom: 10px;
-}
-
-.value {
-    font-size: 30px;
-    font-weight: bold;
-}
-
-.risk {
-    color: #d97706;
-}
-
-.warning {
-    margin-top: 25px;
-    padding: 20px;
-    background: #fff3cd;
-    border-left: 6px solid #f59e0b;
-    border-radius: 10px;
-}
-
-.prediction {
-    margin-top: 35px;
-    background: white;
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-}
-
-.progress {
-    width: 100%;
-    height: 25px;
-    background: #e5e7eb;
-    border-radius: 20px;
-    margin: 15px 0;
-    overflow: hidden;
-}
-
-.progress-bar {
-    width: 68%;
-    height: 100%;
-    background: #f59e0b;
-}
-
-.map {
-    height: 300px;
-    background:
-      linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px);
-    background-size: 40px 40px;
-    background-color: #dcebdc;
-    border-radius: 15px;
-    position: relative;
-    margin-top: 20px;
-}
-
-.marker {
-    position: absolute;
-    padding: 12px;
-    border-radius: 50%;
-    color: white;
-    font-size: 12px;
-}
-
-.green { background: #16a34a; }
-.orange { background: #f59e0b; }
-.red { background: #dc2626; }
-
-.marker1 { left: 25%; top: 35%; }
-.marker2 { left: 55%; top: 50%; }
-.marker3 { left: 75%; top: 25%; }
-
-.alerts {
-    display: grid;
-    gap: 12px;
-    margin-top: 20px;
-}
-
-.alert {
-    padding: 16px;
-    background: white;
-    border-radius: 10px;
-    border-left: 5px solid #dc2626;
-}
-
-.workflow {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 25px;
-}
-
-.step {
-    background: #164b35;
-    color: white;
-    padding: 15px;
-    border-radius: 10px;
-}
-
-footer {
-    margin-top: 50px;
-    background: #12372a;
-    color: white;
-    text-align: center;
-    padding: 25px;
-}
-
-button {
-    margin-top: 20px;
-    padding: 12px 22px;
-    border: none;
-    border-radius: 8px;
-    background: #f59e0b;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-@media(max-width:700px) {
-    .hero h1 {
-        font-size: 30px;
-    }
-
-    nav {
-        margin-top: 15px;
-    }
-
-    nav a {
-        margin-left: 5px;
-        margin-right: 10px;
-    }
-}
-</style>
+    .alert-banner { background: #fff3cd; border-left: 5px solid #ffc107; color: #856404; padding: 15px; border-radius: 4px; font-size: 14px; }
+  </style>
 </head>
-
 <body>
 
-<header>
-    <div class="logo">🌍 Landslide Guardian</div>
-
+  <header>
+    <h1>Landslide Guardian</h1>
+    <p>AI-Based Landslide Early Warning System</p>
     <nav>
-        <a href="#dashboard">Dashboard</a>
-        <a href="prediction.html">AI Prediction</a>
-        <a href="#map">Map</a>
-        <a href="#alerts">Alerts</a>
-        <a href="#about">About</a>
+      <a href="index.html" class="nav-active">Dashboard</a>
+      <a href="prediction.html">AI Prediction</a>
+      <a href="map.html">Hazard Map</a>
+      <a href="https://github.com/wscubemuskan/landslide-guardian" target="_blank" class="nav-github">📂 View Code</a>
     </nav>
-</header>
+  </header>
 
-<section class="hero">
-    <h1>AI-Based Landslide Early Warning System</h1>
+  <section class="hero">
+    <h2>AI-Based Landslide Early Warning System</h2>
+    <p>Landslide Guardian monitors environmental conditions and provides an early indication of landslide risk using rainfall, soil moisture, temperature, slope, and ground movement data.</p>
+    <a href="prediction.html" class="btn-hero">Check Current Risk</a>
+  </section>
 
-    <p>
-        Landslide Guardian monitors environmental conditions and
-        provides an early indication of landslide risk using
-        rainfall, soil moisture, temperature, slope and ground movement data.
-    </p>
+  <div class="container">
+    <h2 class="dashboard-title">📊 Live Monitoring Dashboard</h2>
 
-    <button onclick="showAlert()">Check Current Risk</button>
-</section>
+    <div class="metrics-grid">
+      <div class="card">
+        <h3>🌧️ Rainfall</h3>
+        <div class="value">72 mm</div>
+        <div class="subtext">Last 24 hours</div>
+      </div>
 
-<section class="container" id="dashboard">
+      <div class="card">
+        <h3>💧 Soil Moisture</h3>
+        <div class="value">68%</div>
+        <div class="subtext">Current level</div>
+      </div>
 
-    <h2 class="section-title">📊 Live Monitoring Dashboard</h2>
+      <div class="card">
+        <h3>🌡️ Temperature</h3>
+        <div class="value">24°C</div>
+        <div class="subtext">Current temperature</div>
+      </div>
 
-    <div class="cards">
+      <div class="card">
+        <h3>⛰️ Slope</h3>
+        <div class="value">31°</div>
+        <div class="subtext">Average slope</div>
+      </div>
 
-        <div class="card">
-            <h3>🌧 Rainfall</h3>
-            <div class="value">72 mm</div>
-            <p>Last 24 hours</p>
-        </div>
-
-        <div class="card">
-            <h3>💧 Soil Moisture</h3>
-            <div class="value">68%</div>
-            <p>Current level</p>
-        </div>
-
-        <div class="card">
-            <h3>🌡 Temperature</h3>
-            <div class="value">24°C</div>
-            <p>Current temperature</p>
-        </div>
-
-        <div class="card">
-            <h3>⛰ Slope</h3>
-            <div class="value">31°</div>
-            <p>Average slope</p>
-        </div>
-
-        <div class="card">
-            <h3>⚠ Risk Score</h3>
-            <div class="value risk">68/100</div>
-            <p>Moderate risk</p>
-        </div>
-
+      <div class="card">
+        <h3>⚠️ Risk Score</h3>
+        <div class="value" style="color: #d9534f;">68/100</div>
+        <div class="subtext">Moderate risk</div>
+      </div>
     </div>
 
-    <div class="warning">
-        ⚠️ <strong>Warning:</strong>
-        Heavy rainfall and increasing soil moisture have been detected.
-        The current system indicates a moderate landslide risk.
+    <div class="alert-banner">
+      <strong>⚠️ Warning:</strong> Heavy rainfall and increasing soil moisture have been detected. The current system indicates a moderate landslide risk.
     </div>
-
-</section>
-
-<section class="container" id="prediction">
-
-    <h2 class="section-title">🤖 AI Risk Prediction</h2>
-
-    <div class="prediction">
-
-        <h3>Predicted Landslide Risk</h3>
-
-        <div class="value risk">68%</div>
-
-        <div class="progress">
-            <div class="progress-bar"></div>
-        </div>
-
-        <h3>Risk Category: MODERATE</h3>
-
-        <br>
-
-        <p>
-            Main contributing factors:
-        </p>
-
-        <ul>
-            <li>High rainfall</li>
-            <li>Increasing soil moisture</li>
-            <li>Moderate slope angle</li>
-            <li>Ground movement detected</li>
-        </ul>
-
-        <br>
-
-        <p>
-            <strong>Note:</strong>
-            This prototype currently uses simulated data.
-            It is not a scientifically validated prediction system.
-        </p>
-
-    </div>
-
-</section>
-
-<section class="container" id="map">
-
-    <h2 class="section-title">🗺 Monitoring Locations</h2>
-
-    <div class="map">
-
-        <div class="marker green marker1">LOW</div>
-        <div class="marker orange marker2">MED</div>
-        <div class="marker red marker3">HIGH</div>
-
-    </div>
-
-    <p style="margin-top:10px;">
-        🟢 Low Risk &nbsp;&nbsp;
-        🟠 Moderate Risk &nbsp;&nbsp;
-        🔴 High Risk
-    </p>
-
-</section>
-
-<section class="container" id="alerts">
-
-    <h2 class="section-title">🔔 Early Warning Alerts</h2>
-
-    <div class="alerts">
-
-        <div class="alert">
-            🌧 Heavy rainfall detected in monitoring zone.
-        </div>
-
-        <div class="alert">
-            💧 Soil moisture is increasing rapidly.
-        </div>
-
-        <div class="alert">
-            ⚠ Landslide risk has reached the moderate level.
-        </div>
-
-    </div>
-
-</section>
-
-<section class="container">
-
-    <h2 class="section-title">⚙ How The System Works</h2>
-
-    <div class="workflow">
-
-        <div class="step">Sensors / Data</div>
-        <div class="step">↓</div>
-        <div class="step">Data Collection</div>
-        <div class="step">↓</div>
-        <div class="step">Data Processing</div>
-        <div class="step">↓</div>
-        <div class="step">AI Prediction</div>
-        <div class="step">↓</div>
-        <div class="step">Risk Classification</div>
-        <div class="step">↓</div>
-        <div class="step">Early Warning</div>
-
-    </div>
-
-</section>
-
-<section class="container" id="about">
-
-    <h2 class="section-title">ℹ About The Project</h2>
-
-    <div class="card">
-
-        <h3>Problem Statement</h3>
-
-        <p>
-            Landslides can cause serious damage to people, infrastructure
-            and the environment. Early detection can help provide
-            timely warnings.
-        </p>
-
-        <br>
-
-        <h3>Objective</h3>
-
-        <p>
-            To develop a monitoring system that analyzes environmental
-            parameters and provides an early indication of landslide risk.
-        </p>
-
-        <br>
-
-        <h3>Future Scope</h3>
-
-        <p>
-            Real sensors, weather APIs, GPS/location data and a trained
-            machine-learning model can be connected to this prototype
-            in the future.
-        </p>
-
-    </div>
-
-</section>
-
-<footer>
-    <p>© 2026 Landslide Guardian | Engineering Project Prototype</p>
-    <p>Demo system using simulated data</p>
-</footer>
-
-<script>
-function showAlert() {
-    alert(
-        "Current Risk: MODERATE (68/100)\n\n" +
-        "Heavy rainfall and increasing soil moisture detected."
-    );
-}
-</script>
+  </div>
 
 </body>
 </html>

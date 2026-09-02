@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI Risk Prediction | Landslide Guardian</title>
+
+  <!-- Leaflet CSS for Interactive Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
     body { background: #f4f7f6; color: #12372a; line-height: 1.6; }
@@ -11,7 +15,7 @@
     nav { margin-top: 15px; }
     nav a { color: white; margin: 0 10px; text-decoration: none; font-weight: bold; padding: 6px 12px; border-radius: 4px; }
     nav a:hover { background: white; color: #12372a; }
-    .container { max-width: 600px; margin: 30px auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .container { max-width: 650px; margin: 30px auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
     .form-group { margin-bottom: 15px; text-align: left; }
     label { display: block; font-weight: bold; margin-bottom: 5px; }
     input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
@@ -21,6 +25,9 @@
     .btn-submit { background: #007bff; width: 100%; font-size: 16px; margin-top: 10px; }
     .btn-submit:hover { background: #0056b3; }
     .result { margin-top: 20px; padding: 15px; border-radius: 4px; display: none; text-align: center; font-weight: bold; }
+    
+    /* Interactive Map Box Styling */
+    #map { height: 260px; width: 100%; margin-top: 10px; border-radius: 6px; border: 1px solid #ccc; z-index: 1; }
   </style>
 </head>
 <body>
@@ -40,16 +47,19 @@
     
     <div class="preset-btns">
       <button type="button" class="btn" onclick="loadLowRisk()">Load Low Risk Data</button>
-      <button type="button" class="btn" onclick="loadMonsoonAlert()">Load Monsoon Alert Data</button>
+      <button type="button" class="btn" onclick="loadGuwahatiData()">Load Guwahati (High Risk)</button>
     </div>
 
     <form id="riskForm">
       <div class="form-group">
-        <label for="location">Detected Location:</label>
-        <div style="display: flex; gap: 10px;">
-          <input type="text" id="location" placeholder="Click button to detect" readonly>
-          <button type="button" onclick="getLocation()" style="padding: 8px 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">📍 Detect Location</button>
+        <label for="location">Location / Coordinates:</label>
+        <div style="display: flex; gap: 10px; margin-bottom: 8px;">
+          <input type="text" id="location" placeholder="e.g., Guwahati or Lat: 26.18, Lon: 91.75">
+          <button type="button" onclick="getLocation()" style="padding: 8px 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; white-space: nowrap;">📍 Detect Location</button>
         </div>
+        
+        <!-- Live Map Display -->
+        <div id="map"></div>
       </div>
 
       <div class="form-group">
@@ -78,7 +88,38 @@
     <div id="resultBox" class="result"></div>
   </div>
 
+  <!-- Leaflet JS for Interactive Map -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
   <script>
+    // Initialize Leaflet Map centered on India
+    let map = L.map('map').setView([20.5937, 78.9629], 5);
+    let marker;
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Update marker location on map
+    function updateMapMarker(lat, lon, labelText = "Selected Location") {
+      map.setView([lat, lon], 12);
+      if (marker) {
+        marker.setLatLng([lat, lon]);
+      } else {
+        marker = L.marker([lat, lon]).addTo(map);
+      }
+      marker.bindPopup(`<b>${labelText}</b><br>Lat: ${lat}, Lon: ${lon}`).openPopup();
+      document.getElementById('location').value = `Lat: ${lat}, Lon: ${lon}`;
+    }
+
+    // Click anywhere on map to pin custom location
+    map.on('click', function(e) {
+      const lat = e.latlng.lat.toFixed(4);
+      const lon = e.latlng.lng.toFixed(4);
+      updateMapMarker(lat, lon, "Custom Map Pin");
+    });
+
+    // Detect User Location via Browser GPS
     function getLocation() {
       const locationInput = document.getElementById('location');
       if (navigator.geolocation) {
@@ -87,7 +128,7 @@
           (position) => {
             const lat = position.coords.latitude.toFixed(4);
             const lon = position.coords.longitude.toFixed(4);
-            locationInput.value = `Lat: ${lat}, Lon: ${lon}`;
+            updateMapMarker(lat, lon, "Detected GPS Location");
           },
           (error) => {
             alert("Geolocation error: " + error.message);
@@ -99,6 +140,7 @@
       }
     }
 
+    // Preset Functions
     function loadLowRisk() {
       document.getElementById('rainfall').value = 15;
       document.getElementById('moisture').value = 25;
@@ -106,13 +148,17 @@
       document.getElementById('slope').value = 12;
     }
 
-    function loadMonsoonAlert() {
-      document.getElementById('rainfall').value = 120;
-      document.getElementById('moisture').value = 85;
-      document.getElementById('temp').value = 22;
-      document.getElementById('slope').value = 40;
+    function loadGuwahatiData() {
+      const lat = 26.1850;
+      const lon = 91.7500;
+      updateMapMarker(lat, lon, "Guwahati (Kharguli Hills)");
+      document.getElementById('rainfall').value = 140;
+      document.getElementById('moisture').value = 82;
+      document.getElementById('temp').value = 26;
+      document.getElementById('slope').value = 42;
     }
 
+    // Predict Risk Calculation
     function predictRisk() {
       const rain = parseFloat(document.getElementById('rainfall').value);
       const moisture = parseFloat(document.getElementById('moisture').value);

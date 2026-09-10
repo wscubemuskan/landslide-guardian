@@ -53,7 +53,7 @@
       font-size: 0.95rem;
     }
 
-    input[type="number"], select {
+    input[type="number"] {
       width: 100%;
       padding: 10px;
       border-radius: 6px;
@@ -137,8 +137,6 @@
   </div>
 
   <script>
-    const formspreeEndpoint = "https://formspree.io/f/xdeobavj";
-
     document.getElementById('predictionForm').addEventListener('submit', async function(event) {
       event.preventDefault();
 
@@ -146,7 +144,7 @@
       const slope = parseFloat(document.getElementById('slope').value);
       const moisture = parseFloat(document.getElementById('moisture').value);
 
-      // Simple weighted prediction formula for demonstration
+      // Risk score calculation formula
       let riskScore = Math.min(100, Math.round((rainfall * 0.4) + (slope * 0.8) + (moisture * 0.3)));
 
       const resultCard = document.getElementById('resultCard');
@@ -160,9 +158,8 @@
       if (riskScore >= 60) {
         resultTitle.innerText = "⚠️ HIGH LANDSLIDE RISK DETECTED";
         resultTitle.style.color = "var(--danger-color)";
-        statusAlert.innerText = "Dispatching automated SMS emergency alert...";
+        statusAlert.innerText = "Sending automated SMS alert to +918340505436...";
 
-        // Trigger SMS alert via Formspree -> Twilio integration
         await sendSMSAlert(riskScore, rainfall, slope, moisture);
       } else {
         resultTitle.innerText = "✅ LOW / MODERATE RISK";
@@ -173,34 +170,33 @@
 
     async function sendSMSAlert(riskScore, rainfall, slope, moisture) {
       const statusAlert = document.getElementById('statusAlert');
+      const workerEndpoint = "https://landslide-sms-alert.krim25937.workers.dev"; 
 
       try {
-        const response = await fetch(formspreeEndpoint, {
+        const response = await fetch(workerEndpoint, {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
+            "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            alert: "⚠️ HIGH RISK LANDSLIDE WARNING",
             score: riskScore,
-            rainfall: `${rainfall} mm/hr`,
-            slope: `${slope}°`,
-            moisture: `${moisture}%`,
-            message: `Landslide Guardian Alert: High risk detected (${riskScore}/100). Take immediate safety precautions!`
+            rainfall: rainfall,
+            slope: slope,
+            moisture: moisture
           })
         });
 
         if (response.ok) {
-          statusAlert.innerText = "📲 Automated SMS Alert dispatched successfully!";
+          statusAlert.innerText = "📲 Automated SMS Alert sent directly to +918340505436!";
           statusAlert.style.color = "var(--success-color)";
         } else {
-          statusAlert.innerText = "⚠️ Failed to dispatch SMS alert.";
-          statusAlert.style.color = "var(--danger-color)";                      
+          const errorData = await response.json();
+          statusAlert.innerText = `⚠️ SMS Dispatch Failed: ${errorData.message || response.statusText}`;
+          statusAlert.style.color = "var(--danger-color)";
         }
       } catch (error) {
-        console.error("SMS Dispatch Error:", error);
-        statusAlert.innerText = "⚠️ Network error sending alert.";
+        console.error("Error sending request:", error);
+        statusAlert.innerText = "⚠️ Network error triggering alert.";
         statusAlert.style.color = "var(--danger-color)";
       }
     }

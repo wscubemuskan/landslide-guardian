@@ -22,6 +22,14 @@
     .geo-btn:hover { background: #047857; }
     #map { height: 250px; width: 100%; border-radius: 8px; margin-bottom: 10px; border: 1px solid #334155; }
 
+    /* Quick Fill Preset Buttons */
+    .preset-container { display: flex; gap: 10px; margin-bottom: 15px; }
+    .preset-btn { flex: 1; padding: 8px; border-radius: 6px; font-size: 0.85rem; border: none; cursor: pointer; font-weight: bold; }
+    .preset-low { background: #166534; color: #bbf7d0; }
+    .preset-low:hover { background: #15803d; }
+    .preset-high { background: #991b1b; color: #fecaca; }
+    .preset-high:hover { background: #b91c1c; }
+
     /* Form Styling */
     .form-group { margin-bottom: 15px; }
     label { display: block; margin-bottom: 5px; color: #94a3b8; font-size: 0.9rem; }
@@ -48,6 +56,12 @@
     </div>
     <div id="map"></div>
     <p id="location-coords" style="font-size: 0.85rem; color: #94a3b8;">Selected Location: None</p>
+  </div>
+
+  <!-- Quick Autofill Test Data -->
+  <div class="preset-container">
+    <button type="button" class="preset-btn preset-low" onclick="fillSampleData('low')">Load Low Risk Sample Data</button>
+    <button type="button" class="preset-btn preset-high" onclick="fillSampleData('high')">Load High Risk Sample Data</button>
   </div>
 
   <!-- Parameter Inputs -->
@@ -142,7 +156,20 @@
     }
   }
 
-  // Pure Risk Assessment Calculation (Without API/SMS dependencies)
+  // Sample Data Autofill Handler
+  function fillSampleData(type) {
+    if (type === 'high') {
+      document.getElementById('rainfall').value = 85;
+      document.getElementById('slope').value = 40;
+      document.getElementById('moisture').value = 75;
+    } else {
+      document.getElementById('rainfall').value = 15;
+      document.getElementById('slope').value = 12;
+      document.getElementById('moisture').value = 25;
+    }
+  }
+
+  // Risk Assessment Calculation
   function calculateRisk(event) {
     event.preventDefault();
     

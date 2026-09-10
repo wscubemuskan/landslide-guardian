@@ -3,203 +3,171 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Landslide Guardian - Early Warning System</title>
+  <title>Landslide Guardian - Risk Prediction</title>
+  <!-- Leaflet CSS for Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
-    :root {
-      --bg-color: #0f172a;
-      --card-bg: #1e293b;
-      --text-color: #f8fafc;
-      --accent-color: #38bdf8;
-      --danger-color: #ef4444;
-      --success-color: #22c55e;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #0f172a; color: #f8fafc; padding: 20px; display: flex; justify-content: center; }
+    .container { width: 100%; max-width: 700px; background: #1e293b; border-radius: 12px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+    h1 { color: #38bdf8; text-align: center; margin-bottom: 20px; }
+    
+    /* Location and Map Styling */
+    .location-section { margin-bottom: 20px; }
+    .search-box { display: flex; gap: 10px; margin-bottom: 10px; }
+    input[type="text"], input[type="number"] { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: #fff; }
+    button { padding: 10px 16px; border-radius: 6px; border: none; background: #0284c7; color: white; cursor: pointer; font-weight: bold; transition: 0.2s; }
+    button:hover { background: #0369a1; }
+    .geo-btn { background: #059669; }
+    .geo-btn:hover { background: #047857; }
+    #map { height: 250px; width: 100%; border-radius: 8px; margin-bottom: 10px; border: 1px solid #334155; }
 
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      margin: 0;
-      padding: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
+    /* Form Styling */
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; color: #94a3b8; font-size: 0.9rem; }
+    .submit-btn { width: 100%; padding: 12px; background: #38bdf8; color: #0f172a; font-size: 1rem; margin-top: 10px; font-weight: bold; }
+    .submit-btn:hover { background: #7dd3fc; }
 
-    .container {
-      background-color: var(--card-bg);
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-      max-width: 500px;
-      width: 100%;
-    }
-
-    h1 {
-      text-align: center;
-      color: var(--accent-color);
-      margin-bottom: 24px;
-      font-size: 1.8rem;
-    }
-
-    .form-group {
-      margin-bottom: 18px;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: 600;
-      font-size: 0.95rem;
-    }
-
-    input[type="number"] {
-      width: 100%;
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid #334155;
-      background-color: #0f172a;
-      color: #fff;
-      box-sizing: border-box;
-      font-size: 1rem;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      background-color: var(--accent-color);
-      border: none;
-      border-radius: 6px;
-      color: #0f172a;
-      font-weight: bold;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background 0.2s ease-in-out;
-      margin-top: 10px;
-    }
-
-    button:hover {
-      background-color: #0284c7;
-      color: #fff;
-    }
-
-    .result-card {
-      margin-top: 24px;
-      padding: 15px;
-      border-radius: 8px;
-      background-color: #0f172a;
-      display: none;
-      text-align: center;
-    }
-
-    .result-title {
-      font-size: 1.2rem;
-      font-weight: bold;
-      margin-bottom: 8px;
-    }
-
-    .status-alert {
-      font-size: 0.85rem;
-      margin-top: 8px;
-      color: #94a3b8;
-    }
+    /* Result Display */
+    #result-box { margin-top: 20px; padding: 15px; border-radius: 8px; text-align: center; display: none; }
+    .high-risk { background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #fca5a5; }
+    .low-risk { background: rgba(34, 197, 94, 0.2); border: 1px solid #22c55e; color: #86efac; }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <h1>Landslide Guardian</h1>
-    
-    <form id="predictionForm">
-      <div class="form-group">
-        <label for="rainfall">Rainfall Intensity (mm/hr):</label>
-        <input type="number" id="rainfall" placeholder="e.g., 85" required min="0" max="300">
-      </div>
+<div class="container">
+  <h1>Landslide Guardian</h1>
 
-      <div class="form-group">
-        <label for="slope">Slope Angle (Degrees):</label>
-        <input type="number" id="slope" placeholder="e.g., 40" required min="0" max="90">
-      </div>
-
-      <div class="form-group">
-        <label for="moisture">Soil Moisture Level (%):</label>
-        <input type="number" id="moisture" placeholder="e.g., 75" required min="0" max="100">
-      </div>
-
-      <button type="submit">Predict Risk Level</button>
-    </form>
-
-    <div id="resultCard" class="result-card">
-      <div id="resultTitle" class="result-title"></div>
-      <div id="riskScoreDisplay"></div>
-      <div id="statusAlert" class="status-alert"></div>
+  <!-- Location Search & GPS Controls -->
+  <div class="location-section">
+    <div class="search-box">
+      <input type="text" id="location-input" placeholder="Search location (e.g., Shimla, Wayanad)...">
+      <button onclick="searchLocation()">Search</button>
+      <button class="geo-btn" onclick="getCurrentLocation()">Use GPS</button>
     </div>
+    <div id="map"></div>
+    <p id="location-coords" style="font-size: 0.85rem; color: #94a3b8;">Selected Location: None</p>
   </div>
 
-  <script>
-    document.getElementById('predictionForm').addEventListener('submit', async function(event) {
-      event.preventDefault();
+  <!-- Parameter Inputs -->
+  <form id="prediction-form" onsubmit="calculateRisk(event)">
+    <div class="form-group">
+      <label for="rainfall">Rainfall Intensity (mm/hr):</label>
+      <input type="number" id="rainfall" placeholder="Enter rainfall..." required>
+    </div>
+    <div class="form-group">
+      <label for="slope">Slope Angle (Degrees):</label>
+      <input type="number" id="slope" placeholder="Enter slope angle..." required>
+    </div>
+    <div class="form-group">
+      <label for="moisture">Soil Moisture Level (%):</label>
+      <input type="number" id="moisture" placeholder="Enter soil moisture..." required>
+    </div>
+    <button type="submit" class="submit-btn">Predict Risk Level</button>
+  </form>
 
-      const rainfall = parseFloat(document.getElementById('rainfall').value);
-      const slope = parseFloat(document.getElementById('slope').value);
-      const moisture = parseFloat(document.getElementById('moisture').value);
+  <!-- Output Box -->
+  <div id="result-box">
+    <h2 id="risk-title"></h2>
+    <p id="risk-score" style="margin-top: 8px; font-size: 1.1rem;"></p>
+  </div>
+</div>
 
-      // Risk score calculation formula
-      let riskScore = Math.min(100, Math.round((rainfall * 0.4) + (slope * 0.8) + (moisture * 0.3)));
+<!-- Leaflet JavaScript -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  // Initialize Leaflet Map (Default view: India)
+  let map = L.map('map').setView([20.5937, 78.9629], 5);
+  let marker = L.marker([20.5937, 78.9629], { draggable: true }).addTo(map);
 
-      const resultCard = document.getElementById('resultCard');
-      const resultTitle = document.getElementById('resultTitle');
-      const riskScoreDisplay = document.getElementById('riskScoreDisplay');
-      const statusAlert = document.getElementById('statusAlert');
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
 
-      resultCard.style.display = "block";
-      riskScoreDisplay.innerText = `Calculated Risk Index: ${riskScore} / 100`;
+  function updateCoordsDisplay(lat, lng, locationName) {
+    const text = locationName ? `${locationName} (${lat.toFixed(4)}, ${lng.toFixed(4)})` : `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+    document.getElementById('location-coords').innerText = `Selected Location: ${text}`;
+  }
 
-      if (riskScore >= 60) {
-        resultTitle.innerText = "⚠️ HIGH LANDSLIDE RISK DETECTED";
-        resultTitle.style.color = "var(--danger-color)";
-        statusAlert.innerText = "Sending automated SMS alert to +918340505436...";
+  // Map Click Event
+  map.on('click', function(e) {
+    const { lat, lng } = e.latlng;
+    marker.setLatLng([lat, lng]);
+    updateCoordsDisplay(lat, lng);
+  });
 
-        await sendSMSAlert(riskScore, rainfall, slope, moisture);
-      } else {
-        resultTitle.innerText = "✅ LOW / MODERATE RISK";
-        resultTitle.style.color = "var(--success-color)";
-        statusAlert.innerText = "Conditions are currently within safe operational limits.";
-      }
-    });
+  // Marker Drag Event
+  marker.on('dragend', function(e) {
+    const position = marker.getLatLng();
+    updateCoordsDisplay(position.lat, position.lng);
+  });
 
-    async function sendSMSAlert(riskScore, rainfall, slope, moisture) {
-      const statusAlert = document.getElementById('statusAlert');
-      const workerEndpoint = "https://landslide-sms-alert.krim25937.workers.dev"; 
-
-      try {
-        const response = await fetch(workerEndpoint, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            score: riskScore,
-            rainfall: rainfall,
-            slope: slope,
-            moisture: moisture
-          })
-        });
-
-        if (response.ok) {
-          statusAlert.innerText = "📲 Automated SMS Alert sent directly to +918340505436!";
-          statusAlert.style.color = "var(--success-color)";
-        } else {
-          const errorData = await response.json();
-          statusAlert.innerText = `⚠️ SMS Dispatch Failed: ${errorData.message || response.statusText}`;
-          statusAlert.style.color = "var(--danger-color)";
-        }
-      } catch (error) {
-        console.error("Error sending request:", error);
-        statusAlert.innerText = "⚠️ Network error triggering alert.";
-        statusAlert.style.color = "var(--danger-color)";
-      }
+  // GPS Location Fetch
+  function getCurrentLocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          map.setView([latitude, longitude], 13);
+          marker.setLatLng([latitude, longitude]);
+          updateCoordsDisplay(latitude, longitude, "Current GPS Position");
+        },
+        () => alert("Unable to retrieve your current location.")
+      );
+    } else {
+      alert("Geolocation is not supported by your browser.");
     }
-  </script>
+  }
+
+  // Location Search via Nominatim API
+  async function searchLocation() {
+    const query = document.getElementById('location-input').value;
+    if (!query) return;
+
+    try {
+      const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
+      const data = await response.json();
+      if (data && data.length > 0) {
+        const lat = parseFloat(data[0].lat);
+        const lon = parseFloat(data[0].lon);
+        map.setView([lat, lon], 12);
+        marker.setLatLng([lat, lon]);
+        updateCoordsDisplay(lat, lon, data[0].display_name.split(',')[0]);
+      } else {
+        alert("Location not found.");
+      }
+    } catch (err) {
+      alert("Error searching location.");
+    }
+  }
+
+  // Pure Risk Assessment Calculation (Without API/SMS dependencies)
+  function calculateRisk(event) {
+    event.preventDefault();
+    
+    const rainfall = parseFloat(document.getElementById('rainfall').value);
+    const slope = parseFloat(document.getElementById('slope').value);
+    const moisture = parseFloat(document.getElementById('moisture').value);
+
+    // Calculate Risk Index
+    const score = Math.min(100, Math.round((rainfall * 0.4) + (slope * 0.8) + (moisture * 0.3)));
+
+    const resultBox = document.getElementById('result-box');
+    const riskTitle = document.getElementById('risk-title');
+    const riskScore = document.getElementById('risk-score');
+
+    resultBox.style.display = 'block';
+    riskScore.innerText = `Calculated Risk Index: ${score} / 100`;
+
+    if (score >= 65) {
+      resultBox.className = 'high-risk';
+      riskTitle.innerText = '⚠️ HIGH LANDSLIDE RISK DETECTED';
+    } else {
+      resultBox.className = 'low-risk';
+      riskTitle.innerText = '✅ LOW LANDSLIDE RISK';
+    }
+  }
+</script>
 </body>
 </html>
